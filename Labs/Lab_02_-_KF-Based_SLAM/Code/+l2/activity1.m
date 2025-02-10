@@ -1,12 +1,13 @@
 % This task runs the simulator for the SLAM system
-
 import ebe.core.*;
 import ebe.graphics.*;
 import l2.*;
 
+%% Find, load and parse the configuration file
 % Find, load and parse the configuration file
 config = ebe.utils.readJSONFile('config/activity1.json');
 
+%% Set up the main loop
 % Create the mainloop object, which manages everything
 mainLoop = ebe.MainLoop(config);
 
@@ -39,16 +40,16 @@ simulatorViewer.addView(dotbot.SLAMSystemView(config, slamSystem));
 % Register the viewer with the mainloop
 mainLoop.addViewer(simulatorViewer);
 
-% Run the main loop until it terminates
+%% Run the main loop until it terminates
 mainLoop.run();
 
+% Extract the results
 THistory = resultsAccumulator.timeStore;
 XTrueHistory = resultsAccumulator.xTrueStore;
 
 % Plot out state information
 ebe.graphics.FigureManager.getFigure('Estimate Results');
 clf
-
 stateLabels = {'$x$','$y$'};
 
 plot(THistory, XTrueHistory, 'LineWidth', 2);
@@ -59,11 +60,8 @@ legend(stateLabels, 'Interpreter', 'latex')
 % Plot out covariance information
 ebe.graphics.FigureManager.getFigure('Covariance Results');
 clf
-
 PEstStore = resultsAccumulator.PEstStore;
-
 stateLabels = {'$x$','$y$'};
-
 plot(THistory, PEstStore{1}, 'LineWidth', 2);
 xlabel('Time')
 ylabel('State value')

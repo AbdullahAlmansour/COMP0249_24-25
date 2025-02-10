@@ -1,18 +1,19 @@
 % This script shows how we can do the same using the MainLoop class, which
 % bundles everything together
 
-import ebe.core.*;
-import ebe.graphics.*;
-import l2.*;
+import ebe.core.*; % Import the core classes from the EBE library
+import ebe.graphics.*; % Import the graphics classes from the EBE library
+import l2.*; % Import the classes from the lab 2 library
 
-% Find, load and parse the configuration file
+%% Find, load and parse the configuration file
 config = ebe.utils.readJSONFile('config/activity2-4.json');
 
+%% Set up the main loop
 % Create the mainloop object, which manages everything
 mainLoop = ebe.MainLoop(config);
 
 % Create the simulator and register it
-simulator = dotbot.Simulator(config);
+simulator = dotbot.Simulator(config); 
 mainLoop.setEventGenerator(simulator);
 
 % Create and add the SLAM system
@@ -38,19 +39,18 @@ simulatorViewer.addView(dotbot.SLAMSystemView(config, slamSystem));
 % Register the viewer with the mainloop
 mainLoop.addViewer(simulatorViewer);
 
-% Run the main loop until it terminates
+%% Run the main loop until it terminates
 mainLoop.run();
 
 % Plot out state information
 ebe.graphics.FigureManager.getFigure('Task 3 Estimation Error Results');
 clf
-
 stateLabels = {'$x$','$y$'};
 
-TEstimator = resultsAccumulator.timeStore;
-XTrueHistory = resultsAccumulator.xTrueStore;
-
-for f = 1 : 2
+% Plot the true state values
+TEstimator = resultsAccumulator.timeStore; % Time history
+XTrueHistory = resultsAccumulator.xTrueStore; % True state history
+for f = 1 : 2 % Loop over the states to plot
     PX = resultsAccumulator.PEstStore{1};
     X = resultsAccumulator.xEstStore{1};
     subplot(2,1,f)
