@@ -113,6 +113,20 @@ classdef G2OSLAMSystem < cw1.drivebot.SLAMSystemBase
         end
 
         function setFixOlderPlatformVertices(obj, unfixedTimeWindow)
+            % SETFIXOLDERPLATFORMVERTICES Set the maximum time a platform vertex remains unfixed.
+            %
+            % Syntax:
+            %   slamSystem.setFixOlderPlatformVertices(unfixedTimeWindow)
+            %
+            % Description:
+            %   Landmarks which are older than
+            %   currentTime-unfixedTimeWindow have their status changed to
+            %   fixed. This means they are not optimised. This saves both
+            %   storage and computational costs.
+            %
+            % Inputs:
+            %   unfixedTimeWindow - (double)
+            %       The length of time a platform vertex remains unfixed
             obj.fixOlderPlatformVertices = true;
             obj.unfixedTimeWindow = unfixedTimeWindow;
         end
@@ -262,18 +276,76 @@ classdef G2OSLAMSystem < cw1.drivebot.SLAMSystemBase
             graph = obj.graph;
         end
 
-        % Set the flag to enable / disable validation. This spots errors in
-        % graph construction, but repeated calls can slow things down by
-        % 20% or more.
         function setValidateGraph(obj, validateGraphOnInitialization)
+            % SETVALIDATEGRAPH Set the validate graph flag
+            %
+            % Syntax:
+            %   slamSystem.setValidateGraph(validateGraphOnInitialization);
+            %
+            % Description:
+            %   A properly configured graph obeys several conditions. These
+            %   include all the vertex slots on all edges have been set,
+            %   all the information matrices are positive semidefinite, and
+            %   there are no straggling NaNs caused by values not being
+            %   set. Furthermore, all vectors and matrices need to have the
+            %   correct dimensions.
+            %   
+            %   If this flag is set to true, every edge and vertex is
+            %   checked to make sure it is valid. However, this can greatly
+            %   slow down the operation of the graph and should only be
+            %   used for detailed debugging.
+            %
+            % Inputs:
+            %   validateGraphOnInitialization - (bool)
+            %       Flag to enable detailed checks.
+            %
+            % Outputs:
+            %   chi2 - (double)
+            %       This is the sum of all the terms e'*Omega*e in the
+            %       graph given the current converged estimate.
             obj.validateGraphOnInitialization = validateGraphOnInitialization;
         end
         
         function validateGraphOnInitialization = validateGraph(obj)
+            % VALIDATEGRAPH Return the validate graph flag
+            %
+            % Syntax:
+            %   validateGraphOnInitialization = slamSystem.validateGraph();
+            %
+            % Description:
+            %   Return the flag which determines if the graph should be
+            %   validated when it is initialized.
+            %
+            %
+            % Outputs:
+            %   validateGraphOnInitialization - (bool)
+            %       The value of the validate graph flag
+            %
+            % See also:
+            %    SETVALIDATEGRAPH
             validateGraphOnInitialization = obj.validateGraphOnInitialization;
         end
 
         function [x,P] = platformEstimate(obj)
+            % PLATFORMESTIMATE Return the mean and covariance of the platform estimate.
+            %
+            % Syntax:
+            %   [x,P] = slamSystem.platformEstimate();
+            %
+            % Description:
+            %   Run the optimizer and return the mean (platform vertex
+            %   estimate) and covariance (approximate value computed from
+            %   the Laplace approximation) of the platform state estimate.            %
+            %
+            % Outputs:
+            %   x - (double vector)
+            %       The value of the state
+            %   P - (double PSD square matrix)
+            %       The approximate covariance of the platform estimate.
+            %
+            % See also:
+            %   LANDMARKESTIMATES
+
             obj.optimize(20);
             [x, P] = obj.graph.computeMarginals(obj.currentPlatformVertex);
             x=full(x{1});
@@ -293,6 +365,10 @@ classdef G2OSLAMSystem < cw1.drivebot.SLAMSystemBase
             %   diagonals. The full landmark covariance block is not
             %   returned.
             %
+            %   Note: this method does not call optimize. If you want to
+            %   get the updated estimate, you must call optimize or
+            %   retrieve the platform state estimate first.
+            %
             %   At a given time, there are Nk landmarks. The dimension of
             %   each landmark is 2
             %
@@ -304,6 +380,9 @@ classdef G2OSLAMSystem < cw1.drivebot.SLAMSystemBase
             %       A three dimensional matrix which stores the landmark
             %       estimates. The covariance of landmark 4, for example,
             %       is given by P(:,:,4)
+            %
+            % See also:
+            %   PLATFORMESTIMATE
 
             landmarkVertices = values(obj.landmarkIDStateVectorMap);
             

@@ -1,11 +1,3 @@
 function theta = normalize_theta(theta)
 
-%return
-
-while (theta < -pi)
-    theta = theta + 2* pi;
-end
-
-while (theta > pi)
-    theta = theta - 2* pi;
-end
+theta = atan2(sin(theta), cos(theta));
