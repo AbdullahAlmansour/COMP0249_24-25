@@ -58,7 +58,8 @@ vertices = cell(numberOfTimeSteps, 1);
 % This is the prior we compute for the graph. Unlike the true value above
 % (which uses the real odometry), the prior here is computed using the
 % nominal odometry information
-X0 = zeros(3, numberOfTimeSteps);
+
+% X0 = zeros(3, numberOfTimeSteps); % removed
 
 % Now create the vertices and edges
 
@@ -72,7 +73,9 @@ for k = 1 : numberOfTimeSteps
     
     % If this isn't the first vertex, predict the nominal value and add an
     % edge
-    if (k > 1)
+    if (k == 1)
+        vertices{k}.setToOrigin();
+    else 
         % Create the edge
         processModelEdge = VehicleKinematicsEdge();
         processModelEdge.setVertex(1, vertices{k-1});
@@ -86,7 +89,7 @@ for k = 1 : numberOfTimeSteps
     end
             
     % Set the initial estimate.
-    vertices{k}.setEstimate(X0(:,k));
+    % vertices{k}.setEstimate(X0(:,k)); % removed
 
     % Create the measurement edge
     e = GPSMeasurementEdge();

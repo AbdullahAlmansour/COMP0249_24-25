@@ -42,7 +42,7 @@ XTrueHistory = resultsAccumulator.xTrueStore;
 sigmaErrorBounds = ebe.graphics.FigureManager.getFigure('Ground Truth State Values');
 clf
 
-stateLabels = {'$x$','$y$'};
+stateLabels = {'$x$','$y$', '$\theta$'};
 
 plot(THistory, XTrueHistory, 'LineWidth', 2);
 xlabel('Time')

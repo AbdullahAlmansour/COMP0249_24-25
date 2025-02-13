@@ -185,15 +185,19 @@ classdef SystemModel < handle
             %       The covariance of the SLAM observation
 
             % Work out the relative distance
-            dXY = mXY - x(1:2);
+            dXY = mXY - x(1:2); % Distance in x and y towards the landmark
 
             % Range and squared range
-            r2 = sum(dXY.^2);
-            r = sqrt(r2);
+            r2 = sum(dXY.^2); % Pythagoras: r^2 = x^2 + y^2
+            r = sqrt(r2); % Range: r = sqrt(x^2 + y^2)
+
+            % Bearing
+            beta = atan2(dXY(2), dXY(1)) - x(3); % Bearing: beta = atan2(y, x) - theta
 
             % ACTIVITY 2: REPLACE THIS WITH AN ACTUAL OBSERVATION
             disp('Activity 2: implement code to predict the SLAM sensor')
-            z = zeros(2, 1);
+            % z = zeros(2, 1);
+            z = [r; beta];
 
             % Add noise if required
             if (obj.perturbWithNoise == true)
@@ -205,9 +209,14 @@ classdef SystemModel < handle
 
             % ACTIVITY 5: COMPLETE THE IMPLEMENTATION BY COMPUTING THE
             % VALUES OF gradHx, gradHm AND gradHw
+            dx = dXY(1);
+            dy = dXY(2);
+
             if (nargout >= 3)
-                gradHx = zeros(2, 3);
-                gradHm = zeros(2);
+                % gradHx = zeros(2, 3);
+                gradHx = [-dx/r -dy/r 0; dy/(r^2) -dx/(r^2) -1];
+                % gradHm = zeros(2);
+                gradHm = [dx/r dy/r; -dy/(r^2) dx/(r^2)];
                 gradHw = eye(2);
                 R = obj.RSLAM;
             end
@@ -255,12 +264,20 @@ classdef SystemModel < handle
             % THE VALUES FOR mXY, gradGx AND gradGw
 
             % Work out Polar to Cartesian conversion
-            mXY = zeros(2, 1);
+            % mXY = zeros(2, 1);
+            r = z(1);
+            beta = z(2);
+
+            mx = x(1) + r*cos(phi);
+            my = x(2) + r*sin(phi);
+            mXY = [mx; my];
 
             % Set up the optional outputs if requested
             if (nargout >= 3)
-                gradGx = eye(2, 3);
-                gradGw = zeros(2, 2);
+                % gradGx = eye(2, 3);
+                gradGx = [1 0 -r*sin(phi); 0 1 r*cos(phi)];
+                % gradGw = zeros(2, 2);
+                gradGw = [cos(phi) -r*sin(phi); sin(phi) r*cos(phi)];
                 R = obj.RSLAM;
             end
         end

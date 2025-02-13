@@ -1,7 +1,7 @@
 {
     "platform": "config/trianglebot_platform.json",
     "platformTrajectory": "config/activity1/waypoints.json",
-  "maximumStepNumber": 1000,
+  "maximumStepNumber": 500,
   "perturbWithNoise": true,
   "x0": [
     0, 0, 0

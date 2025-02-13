@@ -6,32 +6,32 @@ import g2o.core.*;
 import l4.two_d_tracking.*;
 
 % Some parameters
-numberOfTimeSteps = 1000;
-dT = 1;
-sigmaR = diag([10 5*pi/180]).^2;
-sigmaQ = 0.01;
+numberOfTimeSteps = 1000; % Number of time steps
+dT = 1; % Time step (s)
+sigmaR = diag([10 5*pi/180]).^2; % Measurement noise
+sigmaQ = 0.01;  % Process noise
 
 % Some sensor positions
-sensorPose=[50 50 0]';
+sensorPose=[50 50 0]'; % Sensor pose in the world frame: (x, y, theta)
 
 % Work out the state transition equations
-F0=[1 dT; 0 1];
-Q0=[dT^3/3 dT^2/2;dT^2/2 dT] * sigmaQ;
+F0=[1 dT; 0 1]; % Top left block of state transition matrix
+Q0=[dT^3/3 dT^2/2;dT^2/2 dT] * sigmaQ; % top left and bottom right blocks of process noise matrix
 
-F = [F0 zeros(2); zeros(2) F0];
-Q = [Q0 zeros(2); zeros(2) Q0];
+F = [F0 zeros(2); zeros(2) F0]; % Full state transition matrix
+Q = [Q0 zeros(2); zeros(2) Q0]; % Full process noise matrix
 
 % Work out the information matrices
-omegaR = inv(sigmaR);
-omegaQ = inv(Q);
+omegaR = inv(sigmaR); % Information matrix for the measurement
+omegaQ = inv(Q); % Information matrix for the process noise
 
 % Ground truth array
-trueX = zeros(4, numberOfTimeSteps);
-z = zeros(2, numberOfTimeSteps);
+trueX = zeros(4, numberOfTimeSteps); % Ground truth state (x, xdot, y, ydot) times numberOfTimeSteps
+z = zeros(2, numberOfTimeSteps); % Measurement array (r, beta) times numberOfTimeSteps
 
 % First timestep
-trueX(2, 1) = 0.1;
-trueX(4, 1) = -0.1;
+trueX(2, 1) = 0.1; % Initial x velocity
+trueX(4, 1) = -0.1; % Initial y velocity
 
 dXY = trueX([1 3], 1) - sensorPose(1:2);
 z(:, 1) = [norm(dXY); atan2(dXY(2), dXY(1)) - sensorPose(3)];

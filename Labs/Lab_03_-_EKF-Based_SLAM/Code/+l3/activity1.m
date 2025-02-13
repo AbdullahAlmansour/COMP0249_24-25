@@ -26,7 +26,7 @@ mainLoop.addResultsAccumulator(resultsAccumulator);
 fig = FigureManager.getFigure("Scenario Output");
 clf
 hold on
-axis([-30 30 -30 30])
+axis([-15 15 -15 15])
 axis square
 
 % Set up the views which show the output of the simulator

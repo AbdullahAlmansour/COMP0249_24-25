@@ -24,7 +24,7 @@ classdef ObjectPolarMeasurementEdge < g2o.core.BaseUnaryEdge
 
     properties(Access = protected)
         % The x,y and theta of the sensor
-        sensorPose;
+        sensorPose; % (3x1 double vector)
     end
     
     methods(Access = public)
@@ -48,7 +48,7 @@ classdef ObjectPolarMeasurementEdge < g2o.core.BaseUnaryEdge
             obj = obj@g2o.core.BaseUnaryEdge(2);
 
             % Set to a default value
-            obj.sensorPose = zeros(3, 1);
+            obj.sensorPose = zeros(3, 1); 
         end
         
         function setSensorPose(obj, sensorPose)
@@ -59,7 +59,8 @@ classdef ObjectPolarMeasurementEdge < g2o.core.BaseUnaryEdge
             %
             % Description:
             %   The range bearing sensor, sits in a given position and is
-            %   oriented in a particular direction. This 
+            %   oriented in a particular direction. This function sets the
+            %   pose of the sensor.
             %
             % Inputs:
             %   sensorPose - (3x1 double vector)
@@ -80,8 +81,18 @@ classdef ObjectPolarMeasurementEdge < g2o.core.BaseUnaryEdge
             %
 
             % Compute the error
-            warning('ObjectPolarMeasurementEdge.computeError: complete implementation')
-            obj.errorZ = zeros(2, 1);
+            % warning('ObjectPolarMeasurementEdge.computeError: complete implementation')
+            dx = obj.edgeVertices{1}.x(1) - obj.sensorPose(1);
+            dy = obj.edgeVertices{1}.x(3) - obj.sensorPose(2);
+            dXY = [dx; dy];
+            r = norm(dXY); % = sqrt(dx^2 + dy^2)
+            
+            beta = atan2(dy, dx) - obj.sensorPose(3);
+
+
+
+            obj.errorZ(1) = obj.z(1) - r;
+            obj.errorZ(2) = g2o.stuff.normalize_theta(obj.z(2) - beta);
         end
         
         function linearizeOplus(obj)
@@ -95,12 +106,25 @@ classdef ObjectPolarMeasurementEdge < g2o.core.BaseUnaryEdge
             %   the vertex.
             %
             
-            dXY = obj.edgeVertices{1}.x([1 3]) - obj.sensorPose(1:2);
-            r = norm(dXY);
+
+            dx = obj.edgeVertices{1}.x(1) - obj.sensorPose(1);
+            dy = obj.edgeVertices{1}.x(3) - obj.sensorPose(2);
+            dXY = [dx; dy];
+
+            r = norm(dXY); % = sqrt(dx^2 + dy^2)
             
-            warning('ObjectPolarMeasurementEdge.linearizeOplus: complete implementation')
-            obj.J{1} = [0 0 0 0;
-                0 0 0 0];
+            % warning('ObjectPolarMeasurementEdge.linearizeOplus: complete implementation')
+            j11 = -dx / r; % dr/dx
+            j12 = 0; %  dr/d(xdot)
+            j13 = -dy / r; % dr/dy
+            j14 = 0; % dr/d(ydot)
+
+            j21 = dy / (r^2); % d(beta)/dx
+            j22 = 0; % d(beta)/d(xdot)
+            j23 = -dx / (r^2); % d(beta)/dy
+            j24 = 0; % d(beta)/d(ydot)
+
+            obj.J{1} = [j11 j12 j13 j14; j21 j22 j23 j24];
         end        
     end
 end

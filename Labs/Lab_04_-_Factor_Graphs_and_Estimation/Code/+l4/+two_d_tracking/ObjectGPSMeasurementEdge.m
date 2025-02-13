@@ -45,8 +45,10 @@ classdef ObjectGPSMeasurementEdge < g2o.core.BaseUnaryEdge
             %   e(x, z) = [zx - x; zy -y]
 
             % Compute the error
-            warning('ObjectGPSMeasurementEdge.computeError: complete implementation')
-            obj.errorZ = zeros(2, 1);
+            % warning('ObjectGPSMeasurementEdge.computeError: complete implementation')
+            obj.errorZ = obj.z - obj.edgeVertices{1}.x([1 3]); 
+            % Above: edgeVertices{1} is the vertex that the edge is connected to. 
+            % x is the state of the vertex. We want the first element (x) and the third element (y)
         end
         
         function linearizeOplus(obj)
@@ -59,9 +61,9 @@ classdef ObjectGPSMeasurementEdge < g2o.core.BaseUnaryEdge
             %   Compute the Jacobian of the error function with respect to
             %   the vertex.
             %
-            warning('ObjectGPSMeasurementEdge.linearizeOplus: complete implementation')
-            obj.J{1} = [0 0 0 0;
-                0 0 0 0];
+            % warning('ObjectGPSMeasurementEdge.linearizeOplus: complete implementation')
+            obj.J{1} = [-1 0 0 0;
+                        0 0 -1 0]; % Jacobian matrix
         end        
     end
 end

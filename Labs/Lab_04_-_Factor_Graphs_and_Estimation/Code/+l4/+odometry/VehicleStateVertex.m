@@ -44,11 +44,12 @@ classdef VehicleStateVertex < g2o.core.BaseVertex
             %   update - (3x1 double)
             %       Small perturbed update to the state estimate. This will
             %       have the same state dimension as the vertex state.
-                
-            warning('VehicleStateVertex.oplus: complete implementation')
-
+                       
             % Add the update
             obj.x = obj.x + update;
+            
+            % Wrap the angle to [-pi,pi]
+            obj.x(3) = g2o.stuff.normalize_theta(obj.x(3));
         end
     end
 end

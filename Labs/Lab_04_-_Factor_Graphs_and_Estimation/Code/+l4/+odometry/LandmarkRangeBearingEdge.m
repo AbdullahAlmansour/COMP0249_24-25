@@ -11,7 +11,7 @@ classdef LandmarkRangeBearingEdge < g2o.core.BaseUnaryEdge
     %
     % The measurement model is
     %
-    %    z_(k+1)=h[x_(k+1)]+w_(k+1)
+    %    z_(k+1)= h[x_(k+1)] + w_(k+1)
     %
     % The measurements are r_(k+1) and beta_(k+1) and are given as follows.
     % The sensor is at (lx, ly).
@@ -70,8 +70,18 @@ classdef LandmarkRangeBearingEdge < g2o.core.BaseUnaryEdge
             %   Compute the value of the error, which is the difference
             %   between the predicted and actual range-bearing measurement.
 
-            warning('LandmarkRangeBearingEdge.computeError: complete implementation')
-            obj.errorZ = zeros(2, 1);
+            % warning('LandmarkRangeBearingEdge.computeError: complete implementation')
+            % obj.errorZ = zeros(2, 1);
+            x = obj.edgeVertices{1}.estimate();
+            dx = obj.landmark(1) - x(1);
+            dy = obj.landmark(2) - x(2);
+            r = norm([dx; dy]);
+            beta = atan2(dy, dx) - x(3);
+
+            e_r = r - obj.z(1);
+            e_beta = g2o.stuff.normalize_theta(beta - obj.z(2));
+
+            obj.errorZ = [e_r; e_beta];
         end
         
         function linearizeOplus(obj)
@@ -88,9 +98,10 @@ classdef LandmarkRangeBearingEdge < g2o.core.BaseUnaryEdge
             x = obj.edgeVertices{1}.estimate();
             dx = obj.landmark(1:2) - x(1:2);
             r = norm(dx);
-            warning('ObjectPolarMeasurementEdge.linearizeOplus: complete implementation')
-            obj.J{1} = [0 0 0;
-                0 0 0];
+            % warning('ObjectPolarMeasurementEdge.linearizeOplus: complete implementation')
+            obj.J{1} = ...
+                [-dx(1)/r -dx(2)/r 0;
+                dx(2)/r^2 -dx(1)/r^2 -1];
         end        
     end
 end
